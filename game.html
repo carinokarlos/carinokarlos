@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CYBER_FLAP // SYSTEM_GAME</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            color: #22c55e;
+            font-family: 'VT323', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            touch-action: none; /* Prevents zooming on mobile */
+        }
+
+        #gameContainer {
+            position: relative;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+            border: 2px solid #333;
+        }
+
+        canvas {
+            display: block;
+            background-color: #0f1115;
+            background-image: 
+                linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* UI OVERLAY */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #scoreDisplay {
+            position: absolute;
+            top: 20px;
+            font-size: 4rem;
+            text-shadow: 0 0 10px #22c55e;
+            z-index: 10;
+        }
+
+        #startScreen, #gameOverScreen {
+            background: rgba(0, 0, 0, 0.85);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            backdrop-filter: blur(2px);
+        }
+
+        h1 { margin: 0; font-size: 3rem; color: #fff; text-shadow: 2px 2px #22c55e; }
+        p { font-size: 1.5rem; color: #aaa; }
+        
+        .btn {
+            margin-top: 20px;
+            background: #22c55e;
+            color: black;
+            border: none;
+            padding: 10px 30px;
+            font-family: inherit;
+            font-size: 1.5rem;
+            cursor: pointer;
+            pointer-events: auto;
+            border-radius: 4px;
+        }
+        .btn:hover { background: #fff; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        
+        <div id="scoreDisplay">0</div>
+
+        <div id="startScreen" class="ui-layer">
+            <h1>CYBER_FLAP</h1>
+            <p>AVOID THE FIREWALLS</p>
+            <p style="font-size: 1rem; color: #666;">[ SPACE ] or [ TAP ] to Jump</p>
+            <button class="btn" onclick="startGame()">INITIATE</button>
+        </div>
+
+        <div id="gameOverScreen" class="ui-layer hidden">
+            <h1 style="color: #ef4444; text-shadow: 2px 2px #500;">CRITICAL_ERROR</h1>
+            <p>CONNECTION TERMINATED</p>
+            <p>SCORE: <span id="finalScore" style="color: white;">0</span></p>
+            <p>BEST: <span id="bestScore" style="color: gold;">0</span></p>
+            <button class="btn" onclick="resetGame()">RETRY</button>
+            <button class="btn" style="background:#333; color:white; margin-top:10px;" onclick="window.close()">EXIT</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // GAME STATE
+        let frames = 0;
+        let score = 0;
+        let gameRunning = false;
+        let speed = 2.5; // Game speed
+
+        // BIRD (THE DATA PACKET)
+        const bird = {
+            x: 50,
+            y: 150,
+            w: 20,
+            h: 20,
+            velocity: 0,
+            gravity: 0.25,
+            jump: 4.6,
+            radius: 10,
+            
+            draw: function() {
+                ctx.fillStyle = "#22c55e";
+                ctx.beginPath();
+                ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Glow effect
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = "#22c55e";
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reset shadow for other elements
+            },
+            
+            update: function() {
+                this.velocity += this.gravity;
+                this.y += this.velocity;
+
+                // Floor collision
+                if(this.y + this.h >= canvas.height) {
+                    this.y = canvas.height - this.h;
+                    gameOver();
+                }
+            },
+            
+            flap: function() {
+                this.velocity = -this.jump;
+            }
+        };
+
+        // PIPES (THE FIREWALLS)
+        const pipes = {
+            position: [],
+            w: 50,
+            h: 150, // This is just base logic, height is calculated dynamically
+            gap: 140, // Space between top and bottom pipe
+            dx: 2,
+            
+            draw: function() {
+                for(let i = 0; i < this.position.length; i++) {
+                    let p = this.position[i];
+                    let topY = p.y;
+                    let bottomY = p.y + this.h + this.gap;
+                    
+                    // Draw Top Pipe
+                    ctx.fillStyle = "#333";
+                    ctx.fillRect(p.x, 0, this.w, topY);
+                    // Pipe Border (Neon)
+                    ctx.strokeStyle = "#ef4444"; 
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(p.x, 0, this.w, topY);
+                    
+                    // Draw Bottom Pipe
+                    ctx.fillStyle = "#333";
+                    ctx.fillRect(p.x, bottomY, this.w, canvas.height - bottomY);
+                    ctx.strokeRect(p.x, bottomY, this.w, canvas.height - bottomY);
+                }
+            },
+            
+            update: function() {
+                // Add new pipe every 150 frames
+                if(frames % 150 === 0) {
+                    this.position.push({
+                        x: canvas.width,
+                        y: Math.floor(Math.random() * (canvas.height - this.gap - 100)) + 50 // Random Y position
+                    });
+                }
+                
+                for(let i = 0; i < this.position.length; i++) {
+                    let p = this.position[i];
+                    p.x -= speed;
+
+                    // Collision Detection
+                    // 1. Hit the Top Pipe?
+                    if(bird.x + bird.w > p.x && bird.x < p.x + this.w && bird.y < p.y) {
+                        gameOver();
+                    }
+                    // 2. Hit the Bottom Pipe?
+                    if(bird.x + bird.w > p.x && bird.x < p.x + this.w && bird.y + bird.h > p.y + this.h + this.gap) {
+                        gameOver();
+                    }
+
+                    // Remove pipes that go off screen
+                    if(p.x + this.w <= 0) {
+                        this.position.shift();
+                        score++;
+                        document.getElementById('scoreDisplay').innerText = score;
+                        
+                        // Speed up slightly every 5 points
+                        if(score % 5 === 0) speed += 0.2;
+                    }
+                }
+            }
+        };
+
+        // LOOP
+        function loop() {
+            if(!gameRunning) return;
+
+            // Clear Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw & Update
+            bird.update();
+            bird.draw();
+            pipes.update();
+            pipes.draw();
+            
+            frames++;
+            requestAnimationFrame(loop);
+        }
+
+        // CONTROLS
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            gameRunning = true;
+            loop();
+        }
+
+        function resetGame() {
+            bird.y = 150;
+            bird.velocity = 0;
+            pipes.position = [];
+            score = 0;
+            frames = 0;
+            speed = 2.5;
+            document.getElementById('scoreDisplay').innerText = score;
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            gameRunning = true;
+            loop();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('finalScore').innerText = score;
+            
+            // Handle High Score
+            let best = localStorage.getItem('cyberflap_best') || 0;
+            if(score > best) {
+                best = score;
+                localStorage.setItem('cyberflap_best', best);
+            }
+            document.getElementById('bestScore').innerText = best;
+        }
+
+        // INPUT LISTENERS
+        window.addEventListener('keydown', function(e) {
+            if(e.code === 'Space') {
+                if(gameRunning) bird.flap();
+            }
+        });
+
+        // Touch support for mobile
+        window.addEventListener('touchstart', function(e) {
+            if(gameRunning) bird.flap();
+        });
+
+    </script>
+</body>
+</html>
