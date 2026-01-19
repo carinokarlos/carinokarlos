@@ -2,7 +2,6 @@
 
 ![Header](https://capsule-render.vercel.app/api?type=waving&color=0f0f12&height=200&section=header&text=CARLOS%20MIGUEL%20CARIÑO&fontSize=70&fontColor=22c55e&animation=fadeIn&fontAlign=50)
 
-### <code><span style="color: #22c55e">>> SYSTEM_STATUS:</span> ONLINE</code>
 ### <code><span style="color: #a1a1aa">FULLSTACK ENGINEER | UI/UX DESIGNER</span></code>
 
 <a href="https://git.io/typing-svg">
