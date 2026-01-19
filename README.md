@@ -1,7 +1,7 @@
 <div align="center">
 
-<a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=38BDF8&center=true&vCenter=true&width=600&lines=CARLOS+MIGUEL;Fullstack+Engineer;UI%2FUX+Designer" alt="Boot Sequence" />
+<a href="https://github.com/carinokarlos?tab=repositories">
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=0f172a&height=80&section=header&text=ARCHIVES%20%26%20REPOSITORIES&fontSize=20&fontColor=38BDF8&desc=Selected%20Works%20%2F%2F%20Open%20Source&descSize=12&descAlign=50&stroke=38BDF8&strokeWidth=1" alt="Archives Banner">
 </a>
 
 ### Carlos Miguel Cariño
