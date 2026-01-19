@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=38BDF8&center=true&vCenter=true&width=600&lines=%3E+INITIALIZING+C.MIGUEL_KERNEL...;%3E+LOADING+FULLSTACK_MODULES...;%3E+UI%2FUX+INTERFACE+READY.;%3E+WELCOME,+USER." alt="Boot Sequence" />
+  <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=38BDF8&center=true&vCenter=true&width=600&lines=CARLOS+MIGUEL;Fullstack+Engineer;UI%2FUX+Designer" alt="Boot Sequence" />
 </a>
 
 ### Carlos Miguel Cariño
@@ -53,5 +53,6 @@
 <a href="https://linkedin.com/in/carlos-miguel-cari%C3%B1o-492430253/"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"></a>
 <a href="mailto:miguel.carlosc27@gmail.com"><img src="https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white"></a>
 <a href="https://facebook.com/carinokarlos"><img src="https://img.shields.io/badge/Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white"></a>
+<a href="https://instagram.com/carinokarlos"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white"></a>>
 
 </div>
