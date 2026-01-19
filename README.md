@@ -55,7 +55,7 @@
     <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZyeWFicnV3bHhzbm56bm56bm56bm56bm56bm56bm56bm56bm56Jm09Zw/3oKIPnAiaMCws8nOsE/giphy.gif" width="400" alt="Cyber Flap Gameplay">
   </a>
   <br><br>
-  <a href="https://carinokarlos.github.io/">
+  <a href="https://carinokarlos.github.io/carinokarlos/">
     <img src="https://img.shields.io/badge/PLAY_GAME-22c55e?style=for-the-badge&logo=gamepad&logoColor=black" />
   </a>
 </div>
