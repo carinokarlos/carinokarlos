@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0d1117&height=120&section=header&text=CARLOS%20MIGUEL%20CARIÑO&fontSize=40&fontColor=22c55e&animation=fadeIn&fontAlign=50" alt="Refined Name Header" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0a0c10&height=120&section=header&text=CARLOS%20MIGUEL%20ANGELES%20CARIÑO&fontSize=35&fontColor=22c55e&animation=fadeIn&fontAlign=50" alt="C.MIGUEL Full Name Header" />
 
 <a href="https://github.com/carinokarlos/dev-utils">
   <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=38BDF8&center=true&vCenter=true&width=600&lines=%3E+INITIALIZING+DEV_CORE_MODULE...;%3E+LOADING+JSON_TOOLS...;%3E+ENCRYPTION_ENGINE:+ACTIVE;%3E+SYSTEM_UPGRADE+COMPLETE." alt="Status Typewriter" />
