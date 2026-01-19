@@ -10,10 +10,6 @@
 
 <br>
 
-<a href="https://github.com/carinokarlos/dev-utils">
-  <img src="https://capsule-render.vercel.app/api?type=rect&color=0f172a&height=80&section=header&text=LATEST%20BUILD:%20DEV_CORE&fontSize=20&fontColor=22c55e&desc=Advanced%20Developer%20Utility%20Dashboard&descSize=12&descAlign=50&stroke=22c55e&strokeWidth=1" alt="Dev Core Banner">
-</a>
-
 <br><br>
 
 <table>
