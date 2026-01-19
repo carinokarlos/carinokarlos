@@ -1,11 +1,12 @@
 <div align="center">
 
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0d1117&height=200&section=header&text=CARLOS%20MIGUEL&fontSize=70&fontColor=22c55e&animation=fadeIn&fontAlign=50" alt="Large Name Header" />
+
 <a href="https://github.com/carinokarlos/dev-utils">
-  <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=22c55e&center=true&vCenter=true&width=600&lines=%3E+INITIALIZING+DEV_CORE_MODULE...;%3E+LOADING+JSON_TOOLS...;%3E+ENCRYPTION_ENGINE:+ACTIVE;%3E+SYSTEM_UPGRADE+COMPLETE." alt="Dev Core Typewriter" />
+  <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=38BDF8&center=true&vCenter=true&width=600&lines=%3E+INITIALIZING+DEV_CORE_MODULE...;%3E+LOADING+JSON_TOOLS...;%3E+ENCRYPTION_ENGINE:+ACTIVE;%3E+SYSTEM_UPGRADE+COMPLETE." alt="Status Typewriter" />
 </a>
 
-### Carlos Miguel Cariño
-*Engineering robust systems with minimalist design principles.*
+### *Engineering robust systems with minimalist design principles.*
 <br>BSIT @ National University — Fairview
 
 <br>
