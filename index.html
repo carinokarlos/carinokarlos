@@ -48,6 +48,38 @@
         }
         .btn:hover { transform: scale(1.1); background: #fff; }
         .hidden { display: none !important; }
+
+        /* Reactive Pulse for the Background Grid */
+        .pulse-bg {
+            animation: pulseGrid 0.4s ease-out;
+        }
+        @keyframes pulseGrid {
+            0% { background-size: 20px 20px; opacity: 1; }
+            100% { background-size: 25px 25px; opacity: 0.8; }
+        }
+        
+        /* System Log HUD */
+        #systemLog {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 0.8rem;
+            color: #22c55e;
+            text-align: left;
+            pointer-events: none;
+            line-height: 1.4;
+            opacity: 0.7;
+        }
+        
+        /* Overclock Indicator */
+        #overclockUI {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1rem;
+            color: #fbbf24;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -77,82 +109,78 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
-        function resize() {
-            canvas.width = 400;
-            canvas.height = 700;
-        }
+        const logEl = document.createElement('div');
+        logEl.id = "systemLog";
+        document.getElementById('gameContainer').appendChild(logEl);
+    
+        function resize() { canvas.width = 400; canvas.height = 700; }
         resize();
     
-        let frames = 0;
-        let score = 0;
-        let gameRunning = false;
-        let waitingToStart = true; // NEW: Controls the "Press Space to Start" state
-        let speed = 2.2; // CHILL: Reduced from 3
-        let particles = [];
+        let frames = 0, score = 0, gameRunning = false, waitingToStart = true;
+        let currentSpeed = 1.8;
+        const INITIAL_SPEED = 1.8, MAX_SPEED = 6.0;
+    
+        // SYSTEM LOG UTILITY
+        function sysLog(msg) {
+            const lines = logEl.innerHTML.split('<br>').slice(-4);
+            lines.push(`> ${msg}`);
+            logEl.innerHTML = lines.join('<br>');
+        }
     
         const bird = {
-            x: 50, y: 300, w: 15, h: 15,
-            velocity: 0, gravity: 0.22, // CHILL: Slightly lighter gravity
-            jump: 4.5, // CHILL: Smaller jump for more control
+            x: 50, y: 350, w: 15, h: 15,
+            velocity: 0, gravity: 0.22, jump: 4.6,
             trail: [],
-    
             draw: function() {
                 this.trail.forEach((t, i) => {
-                    ctx.fillStyle = `rgba(34, 197, 94, ${i / 10})`;
+                    ctx.fillStyle = `rgba(34, 197, 94, ${i / 15})`;
                     ctx.fillRect(t.x, t.y, this.w, this.h);
                 });
-                ctx.fillStyle = "#fff";
-                ctx.shadowBlur = 15; ctx.shadowColor = "#22c55e";
+                ctx.fillStyle = (score > 15) ? "#fbbf24" : "#fff"; // Turn Gold when "Overclocked"
+                ctx.shadowBlur = 15; ctx.shadowColor = ctx.fillStyle;
                 ctx.fillRect(this.x, this.y, this.w, this.h);
                 ctx.shadowBlur = 0;
             },
-    
             update: function() {
                 if (waitingToStart) {
-                    // Gentle hover effect while waiting
-                    this.y = 300 + Math.sin(frames / 10) * 10;
+                    this.y = 350 + Math.sin(frames / 10) * 15;
                     return;
                 }
                 this.velocity += this.gravity;
                 this.y += this.velocity;
                 this.trail.push({x: this.x, y: this.y});
-                if(this.trail.length > 10) this.trail.shift();
+                if(this.trail.length > 15) this.trail.shift();
                 if(this.y + this.h >= canvas.height || this.y <= 0) gameOver();
             },
-    
-            flap: function() { this.velocity = -this.jump; }
+            flap: function() { 
+                this.velocity = -this.jump; 
+                sysLog("JUMP_PROTOCOL_INIT");
+                canvas.classList.remove('pulse-bg');
+                void canvas.offsetWidth; // Trigger reflow
+                canvas.classList.add('pulse-bg');
+            }
         };
     
         const pipes = {
-            list: [], 
-            gap: 180, // CHILL: Increased gap from 160 (more room to fly)
-            width: 60,
-            spawnRate: 140, // CHILL: More horizontal space between pillars
-    
+            list: [], gap: 185, width: 65, spawnRate: 150,
             draw: function() {
                 this.list.forEach(p => {
-                    ctx.fillStyle = "#111";
-                    ctx.strokeStyle = "#ef4444";
+                    // Glow based on speed
+                    ctx.strokeStyle = (currentSpeed > 4) ? "#ff3131" : "#ef4444";
                     ctx.lineWidth = 3;
-                    ctx.fillRect(p.x, 0, this.width, p.top);
-                    ctx.strokeRect(p.x, -5, this.width, p.top + 5);
-                    let bTop = p.top + this.gap;
-                    ctx.fillRect(p.x, bTop, this.width, canvas.height - bTop);
-                    ctx.strokeRect(p.x, bTop, this.width, canvas.height - bTop + 5);
+                    ctx.strokeRect(p.x, 0, this.width, p.top);
+                    ctx.strokeRect(p.x, p.top + this.gap, this.width, canvas.height);
                 });
             },
-    
             update: function() {
                 if (waitingToStart) return;
                 if(frames % this.spawnRate === 0) {
-                    let minPipeHeight = 80;
-                    let maxPipeHeight = canvas.height - this.gap - minPipeHeight;
-                    let h = Math.floor(Math.random() * (maxPipeHeight - minPipeHeight + 1)) + minPipeHeight;
+                    let h = Math.floor(Math.random() * (canvas.height - this.gap - 160)) + 80;
                     this.list.push({ x: canvas.width, top: h });
+                    sysLog("NEW_FIREWALL_DETECTED");
                 }
                 this.list.forEach((p, i) => {
-                    p.x -= speed;
+                    p.x -= currentSpeed;
                     if(bird.x + bird.w > p.x && bird.x < p.x + this.width) {
                         if(bird.y < p.top || bird.y + bird.h > p.top + this.gap) gameOver();
                     }
@@ -160,6 +188,8 @@
                         this.list.shift();
                         score++;
                         document.getElementById('scoreDisplay').innerText = score;
+                        if(currentSpeed < MAX_SPEED) currentSpeed += 0.2;
+                        if(score === 15) sysLog("OVERCLOCK_MODE_ACTIVE");
                     }
                 });
             }
@@ -168,6 +198,12 @@
         function loop() {
             ctx.fillStyle = "#050505";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Matrix Background
+            ctx.fillStyle = "rgba(34, 197, 94, 0.03)";
+            ctx.font = "10px Courier";
+            for(let i=0; i<15; i++) ctx.fillText(Math.random().toString(2).substr(2,8), (i*30), (frames % 700));
+    
             bird.update(); bird.draw();
             pipes.update(); pipes.draw();
             frames++;
@@ -176,38 +212,44 @@
     
         function initTrigger() {
             if (waitingToStart) {
-                waitingToStart = false;
-                gameRunning = true;
+                waitingToStart = false; gameRunning = true;
                 document.getElementById('startScreen').classList.add('hidden');
-            } else if (gameRunning) {
-                bird.flap();
+                sysLog("SYSTEM_BOOT_SUCCESS");
+            } else if (gameRunning) { bird.flap(); }
+        }
+    
+        function gameOver() {
+            gameRunning = false;
+            sysLog("CRITICAL_CORE_FAILURE");
+            const screen = document.getElementById('gameOverScreen');
+            const msgLabel = screen.querySelector('p');
+            const best = localStorage.getItem('cyberflap_best') || 0;
+            
+            screen.classList.remove('hidden');
+            document.getElementById('finalScore').innerText = score;
+            
+            if(score > best && score > 0) {
+                localStorage.setItem('cyberflap_best', score);
+                msgLabel.innerHTML = `<span style="color: #22c55e;">[NEW_RECORD_SET]</span><br>HIRE_THIS_ENGINEER.`;
+            } else {
+                const teases = ["REBOOT_AND_TRY_AGAIN.", "LATENCY_TOO_HIGH.", "SKILL_NOT_FOUND.", "MEMORY_LEAK_DETECTED."];
+                msgLabel.innerHTML = `<span style="color: #ef4444;">${teases[Math.floor(Math.random()*teases.length)]}</span>`;
             }
         }
     
         function resetGame() {
-            bird.y = 300; bird.velocity = 0; bird.trail = [];
-            pipes.list = []; score = 0; frames = 0;
+            bird.y = 350; bird.velocity = 0; bird.trail = [];
+            pipes.list = []; score = 0; frames = 0; currentSpeed = INITIAL_SPEED;
             document.getElementById('scoreDisplay').innerText = score;
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('startScreen').classList.remove('hidden');
             waitingToStart = true;
-            gameRunning = false;
+            logEl.innerHTML = "> STANDBY...";
         }
     
-        // LISTENER UPDATED TO HANDLE STARTING
-        window.addEventListener('keydown', e => { 
-            if(e.code === 'Space') {
-                e.preventDefault();
-                initTrigger();
-            }
-        });
+        window.addEventListener('keydown', e => { if(e.code === 'Space') { e.preventDefault(); initTrigger(); }});
+        window.addEventListener('touchstart', e => { e.preventDefault(); initTrigger(); }, {passive: false});
     
-        window.addEventListener('touchstart', e => { 
-            e.preventDefault();
-            initTrigger();
-        }, {passive: false});
-    
-        // Start loop immediately to show "waiting" state
         loop();
     </script>
 </body>
