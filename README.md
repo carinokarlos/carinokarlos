@@ -2,12 +2,12 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0a0c10&height=120&section=header&text=CARLOS%20MIGUEL%20ANGELES%20CARIÑO&fontSize=35&fontColor=e2e8f0&animation=fadeIn&fontAlign=50" alt="C.MIGUEL Minimalist Header" />
 
-<a href="https://github.com/carinokarlos/dev-utils">
-  <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=38BDF8&center=true&vCenter=true&width=600&lines=%3E+INITIALIZING+DEV_CORE_MODULE...;%3E+LOADING+JSON_TOOLS...;%3E+ENCRYPTION_ENGINE:+ACTIVE;%3E+SYSTEM_UPGRADE+COMPLETE." alt="Status Typewriter" />
+<a href="https://github.com/carinokarlos">
+  <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=38BDF8&center=true&vCenter=true&width=600&lines=%3E+INITIALIZING+DEV_CORE_MODULE...;%3E+BSIT_SPECIALIST:+MOBILE_INTERNET_TECH;%3E+UPLINK_STABLE:+NU_FAIRVIEW;%3E+SYSTEM_UPGRADE+COMPLETE." alt="Status Typewriter" />
 </a>
 
 ### *Engineering robust systems with minimalist design principles.*
-<br>BSIT @ National University — Fairview
+**BSIT Specialization in Mobile & Internet Technologies** *National University — Fairview*
 
 <br>
 
