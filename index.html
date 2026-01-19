@@ -6,88 +6,47 @@
     <title>CYBER_FLAP // SYSTEM_GAME</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-
+    
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #050505;
-            color: #22c55e;
-            font-family: 'VT323', monospace;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            touch-action: none; /* Prevents zooming on mobile */
+            margin: 0; background-color: #000;
+            color: #22c55e; font-family: 'VT323', monospace;
+            overflow: hidden; display: flex;
+            justify-content: center; align-items: center;
+            height: 100vh; touch-action: none;
         }
-
+    
         #gameContainer {
             position: relative;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
-            border: 2px solid #333;
+            width: 100%; max-width: 400px;
+            height: 100%; max-height: 700px;
+            border: 2px solid #22c55e;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.2);
         }
-
-        canvas {
-            display: block;
-            background-color: #0f1115;
-            background-image: 
-                linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        /* UI OVERLAY */
-        .ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
+    
+        canvas { display: block; width: 100%; height: 100%; background-color: #050505; }
+    
         #scoreDisplay {
-            position: absolute;
-            top: 20px;
-            font-size: 4rem;
-            text-shadow: 0 0 10px #22c55e;
-            z-index: 10;
+            position: absolute; top: 10%; width: 100%;
+            text-align: center; font-size: 5rem;
+            text-shadow: 0 0 20px #22c55e; pointer-events: none; z-index: 10;
         }
-
-        #startScreen, #gameOverScreen {
-            background: rgba(0, 0, 0, 0.85);
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            backdrop-filter: blur(2px);
+    
+        .ui-layer {
+            position: absolute; inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 20; backdrop-filter: blur(5px);
         }
-
-        h1 { margin: 0; font-size: 3rem; color: #fff; text-shadow: 2px 2px #22c55e; }
-        p { font-size: 1.5rem; color: #aaa; }
-        
+    
         .btn {
-            margin-top: 20px;
-            background: #22c55e;
-            color: black;
-            border: none;
-            padding: 10px 30px;
-            font-family: inherit;
-            font-size: 1.5rem;
-            cursor: pointer;
-            pointer-events: auto;
-            border-radius: 4px;
+            margin-top: 20px; background: #22c55e;
+            color: black; border: none; padding: 12px 40px;
+            font-family: inherit; font-size: 2rem;
+            cursor: pointer; border-radius: 2px;
+            transition: 0.2s;
         }
-        .btn:hover { background: #fff; }
-
+        .btn:hover { transform: scale(1.1); background: #fff; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -119,160 +78,142 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // GAME STATE
+        // ADJUST FOR HIGH-DPI DISPLAYS
+        function resize() {
+            canvas.width = 400;
+            canvas.height = 700;
+        }
+        resize();
+    
         let frames = 0;
         let score = 0;
         let gameRunning = false;
-        let speed = 2.5; // Game speed
-
-        // BIRD (THE DATA PACKET)
+        let speed = 3;
+        let particles = [];
+    
+        // DATA PACKET (BIRD)
         const bird = {
-            x: 50,
-            y: 150,
-            w: 20,
-            h: 20,
-            velocity: 0,
-            gravity: 0.25,
-            jump: 4.6,
-            radius: 10,
-            
+            x: 50, y: 300, w: 15, h: 15,
+            velocity: 0, gravity: 0.25, jump: 5,
+            trail: [],
+    
             draw: function() {
-                ctx.fillStyle = "#22c55e";
-                ctx.beginPath();
-                ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Glow effect
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = "#22c55e";
-                ctx.fill();
-                ctx.shadowBlur = 0; // Reset shadow for other elements
+                // Draw Trail
+                this.trail.forEach((t, i) => {
+                    ctx.fillStyle = `rgba(34, 197, 94, ${i / 10})`;
+                    ctx.fillRect(t.x, t.y, this.w, this.h);
+                });
+    
+                ctx.fillStyle = "#fff";
+                ctx.shadowBlur = 15; ctx.shadowColor = "#22c55e";
+                ctx.fillRect(this.x, this.y, this.w, this.h);
+                ctx.shadowBlur = 0;
             },
-            
+    
             update: function() {
                 this.velocity += this.gravity;
                 this.y += this.velocity;
-
-                // Floor collision
-                if(this.y + this.h >= canvas.height) {
-                    this.y = canvas.height - this.h;
-                    gameOver();
-                }
+    
+                // Save Trail
+                this.trail.push({x: this.x, y: this.y});
+                if(this.trail.length > 10) this.trail.shift();
+    
+                if(this.y + this.h >= canvas.height || this.y <= 0) gameOver();
             },
-            
-            flap: function() {
-                this.velocity = -this.jump;
-            }
+    
+            flap: function() { this.velocity = -this.jump; }
         };
-
-        // PIPES (THE FIREWALLS)
+    
+        // FIREWALLS (PIPES)
         const pipes = {
-            position: [],
-            w: 50,
-            h: 150, // This is just base logic, height is calculated dynamically
-            gap: 140, // Space between top and bottom pipe
-            dx: 2,
-            
+            list: [], gap: 160, width: 60,
+    
             draw: function() {
-                for(let i = 0; i < this.position.length; i++) {
-                    let p = this.position[i];
-                    let topY = p.y;
-                    let bottomY = p.y + this.h + this.gap;
+                this.list.forEach(p => {
+                    ctx.fillStyle = "#111";
+                    ctx.strokeStyle = "#ef4444";
+                    ctx.lineWidth = 3;
+    
+                    // Top Pipe
+                    ctx.fillRect(p.x, 0, this.width, p.top);
+                    ctx.strokeRect(p.x, -5, this.width, p.top + 5);
+    
+                    // Bottom Pipe
+                    let bTop = p.top + this.gap;
+                    ctx.fillRect(p.x, bTop, this.width, canvas.height - bTop);
+                    ctx.strokeRect(p.x, bTop, this.width, canvas.height - bTop + 5);
                     
-                    // Draw Top Pipe
-                    ctx.fillStyle = "#333";
-                    ctx.fillRect(p.x, 0, this.w, topY);
-                    // Pipe Border (Neon)
-                    ctx.strokeStyle = "#ef4444"; 
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(p.x, 0, this.w, topY);
-                    
-                    // Draw Bottom Pipe
-                    ctx.fillStyle = "#333";
-                    ctx.fillRect(p.x, bottomY, this.w, canvas.height - bottomY);
-                    ctx.strokeRect(p.x, bottomY, this.w, canvas.height - bottomY);
-                }
+                    // Scanline effect on pipes
+                    ctx.fillStyle = "rgba(239, 68, 68, 0.1)";
+                    for(let i = 0; i < canvas.height; i+=4) {
+                        ctx.fillRect(p.x, i, this.width, 1);
+                    }
+                });
             },
-            
+    
             update: function() {
-                // Add new pipe every 150 frames
-                if(frames % 150 === 0) {
-                    this.position.push({
-                        x: canvas.width,
-                        y: Math.floor(Math.random() * (canvas.height - this.gap - 100)) + 50 // Random Y position
-                    });
+                if(frames % 100 === 0) {
+                    let minPipeHeight = 50;
+                    let maxPipeHeight = canvas.height - this.gap - minPipeHeight;
+                    let h = Math.floor(Math.random() * (maxPipeHeight - minPipeHeight + 1)) + minPipeHeight;
+                    this.list.push({ x: canvas.width, top: h });
                 }
-                
-                for(let i = 0; i < this.position.length; i++) {
-                    let p = this.position[i];
+    
+                this.list.forEach((p, i) => {
                     p.x -= speed;
-
-                    // Collision Detection
-                    // 1. Hit the Top Pipe?
-                    if(bird.x + bird.w > p.x && bird.x < p.x + this.w && bird.y < p.y) {
-                        gameOver();
+    
+                    // Collision
+                    if(bird.x + bird.w > p.x && bird.x < p.x + this.width) {
+                        if(bird.y < p.top || bird.y + bird.h > p.top + this.gap) gameOver();
                     }
-                    // 2. Hit the Bottom Pipe?
-                    if(bird.x + bird.w > p.x && bird.x < p.x + this.w && bird.y + bird.h > p.y + this.h + this.gap) {
-                        gameOver();
-                    }
-
-                    // Remove pipes that go off screen
-                    if(p.x + this.w <= 0) {
-                        this.position.shift();
+    
+                    if(p.x + this.width < 0) {
+                        this.list.shift();
                         score++;
                         document.getElementById('scoreDisplay').innerText = score;
-                        
-                        // Speed up slightly every 5 points
-                        if(score % 5 === 0) speed += 0.2;
+                        speed += 0.05; // Progressive difficulty
                     }
-                }
+                });
             }
         };
-
-        // LOOP
+    
         function loop() {
             if(!gameRunning) return;
-
-            // Clear Canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw & Update
-            bird.update();
-            bird.draw();
-            pipes.update();
-            pipes.draw();
-            
+            ctx.fillStyle = "#050505";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+            // Background Text
+            ctx.fillStyle = "rgba(34, 197, 94, 0.05)";
+            ctx.font = "12px monospace";
+            for(let i = 0; i < 10; i++) {
+                ctx.fillText("10101101001010101101", 10, i * 80 + (frames % 80));
+            }
+    
+            bird.update(); bird.draw();
+            pipes.update(); pipes.draw();
+    
             frames++;
             requestAnimationFrame(loop);
         }
-
-        // CONTROLS
+    
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
-            gameRunning = true;
-            loop();
+            resetGame();
         }
-
+    
         function resetGame() {
-            bird.y = 150;
-            bird.velocity = 0;
-            pipes.position = [];
-            score = 0;
-            frames = 0;
-            speed = 2.5;
+            bird.y = 300; bird.velocity = 0; bird.trail = [];
+            pipes.list = []; score = 0; speed = 3; frames = 0;
             document.getElementById('scoreDisplay').innerText = score;
             document.getElementById('gameOverScreen').classList.add('hidden');
             gameRunning = true;
             loop();
         }
-
+    
         function gameOver() {
             gameRunning = false;
             document.getElementById('gameOverScreen').classList.remove('hidden');
             document.getElementById('finalScore').innerText = score;
-            
-            // Handle High Score
             let best = localStorage.getItem('cyberflap_best') || 0;
             if(score > best) {
                 best = score;
@@ -280,19 +221,9 @@
             }
             document.getElementById('bestScore').innerText = best;
         }
-
-        // INPUT LISTENERS
-        window.addEventListener('keydown', function(e) {
-            if(e.code === 'Space') {
-                if(gameRunning) bird.flap();
-            }
-        });
-
-        // Touch support for mobile
-        window.addEventListener('touchstart', function(e) {
-            if(gameRunning) bird.flap();
-        });
-
+    
+        window.addEventListener('keydown', e => { if(e.code === 'Space') bird.flap(); });
+        window.addEventListener('touchstart', e => { bird.flap(); e.preventDefault(); }, {passive: false});
     </script>
 </body>
 </html>
