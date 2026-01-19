@@ -78,7 +78,6 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // ADJUST FOR HIGH-DPI DISPLAYS
         function resize() {
             canvas.width = 400;
             canvas.height = 700;
@@ -88,22 +87,21 @@
         let frames = 0;
         let score = 0;
         let gameRunning = false;
-        let speed = 3;
+        let waitingToStart = true; // NEW: Controls the "Press Space to Start" state
+        let speed = 2.2; // CHILL: Reduced from 3
         let particles = [];
     
-        // DATA PACKET (BIRD)
         const bird = {
             x: 50, y: 300, w: 15, h: 15,
-            velocity: 0, gravity: 0.25, jump: 5,
+            velocity: 0, gravity: 0.22, // CHILL: Slightly lighter gravity
+            jump: 4.5, // CHILL: Smaller jump for more control
             trail: [],
     
             draw: function() {
-                // Draw Trail
                 this.trail.forEach((t, i) => {
                     ctx.fillStyle = `rgba(34, 197, 94, ${i / 10})`;
                     ctx.fillRect(t.x, t.y, this.w, this.h);
                 });
-    
                 ctx.fillStyle = "#fff";
                 ctx.shadowBlur = 15; ctx.shadowColor = "#22c55e";
                 ctx.fillRect(this.x, this.y, this.w, this.h);
@@ -111,119 +109,106 @@
             },
     
             update: function() {
+                if (waitingToStart) {
+                    // Gentle hover effect while waiting
+                    this.y = 300 + Math.sin(frames / 10) * 10;
+                    return;
+                }
                 this.velocity += this.gravity;
                 this.y += this.velocity;
-    
-                // Save Trail
                 this.trail.push({x: this.x, y: this.y});
                 if(this.trail.length > 10) this.trail.shift();
-    
                 if(this.y + this.h >= canvas.height || this.y <= 0) gameOver();
             },
     
             flap: function() { this.velocity = -this.jump; }
         };
     
-        // FIREWALLS (PIPES)
         const pipes = {
-            list: [], gap: 160, width: 60,
+            list: [], 
+            gap: 180, // CHILL: Increased gap from 160 (more room to fly)
+            width: 60,
+            spawnRate: 140, // CHILL: More horizontal space between pillars
     
             draw: function() {
                 this.list.forEach(p => {
                     ctx.fillStyle = "#111";
                     ctx.strokeStyle = "#ef4444";
                     ctx.lineWidth = 3;
-    
-                    // Top Pipe
                     ctx.fillRect(p.x, 0, this.width, p.top);
                     ctx.strokeRect(p.x, -5, this.width, p.top + 5);
-    
-                    // Bottom Pipe
                     let bTop = p.top + this.gap;
                     ctx.fillRect(p.x, bTop, this.width, canvas.height - bTop);
                     ctx.strokeRect(p.x, bTop, this.width, canvas.height - bTop + 5);
-                    
-                    // Scanline effect on pipes
-                    ctx.fillStyle = "rgba(239, 68, 68, 0.1)";
-                    for(let i = 0; i < canvas.height; i+=4) {
-                        ctx.fillRect(p.x, i, this.width, 1);
-                    }
                 });
             },
     
             update: function() {
-                if(frames % 100 === 0) {
-                    let minPipeHeight = 50;
+                if (waitingToStart) return;
+                if(frames % this.spawnRate === 0) {
+                    let minPipeHeight = 80;
                     let maxPipeHeight = canvas.height - this.gap - minPipeHeight;
                     let h = Math.floor(Math.random() * (maxPipeHeight - minPipeHeight + 1)) + minPipeHeight;
                     this.list.push({ x: canvas.width, top: h });
                 }
-    
                 this.list.forEach((p, i) => {
                     p.x -= speed;
-    
-                    // Collision
                     if(bird.x + bird.w > p.x && bird.x < p.x + this.width) {
                         if(bird.y < p.top || bird.y + bird.h > p.top + this.gap) gameOver();
                     }
-    
                     if(p.x + this.width < 0) {
                         this.list.shift();
                         score++;
                         document.getElementById('scoreDisplay').innerText = score;
-                        speed += 0.05; // Progressive difficulty
                     }
                 });
             }
         };
     
         function loop() {
-            if(!gameRunning) return;
             ctx.fillStyle = "#050505";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-            // Background Text
-            ctx.fillStyle = "rgba(34, 197, 94, 0.05)";
-            ctx.font = "12px monospace";
-            for(let i = 0; i < 10; i++) {
-                ctx.fillText("10101101001010101101", 10, i * 80 + (frames % 80));
-            }
-    
             bird.update(); bird.draw();
             pipes.update(); pipes.draw();
-    
             frames++;
             requestAnimationFrame(loop);
         }
     
-        function startGame() {
-            document.getElementById('startScreen').classList.add('hidden');
-            resetGame();
+        function initTrigger() {
+            if (waitingToStart) {
+                waitingToStart = false;
+                gameRunning = true;
+                document.getElementById('startScreen').classList.add('hidden');
+            } else if (gameRunning) {
+                bird.flap();
+            }
         }
     
         function resetGame() {
             bird.y = 300; bird.velocity = 0; bird.trail = [];
-            pipes.list = []; score = 0; speed = 3; frames = 0;
+            pipes.list = []; score = 0; frames = 0;
             document.getElementById('scoreDisplay').innerText = score;
             document.getElementById('gameOverScreen').classList.add('hidden');
-            gameRunning = true;
-            loop();
-        }
-    
-        function gameOver() {
+            document.getElementById('startScreen').classList.remove('hidden');
+            waitingToStart = true;
             gameRunning = false;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
-            document.getElementById('finalScore').innerText = score;
-            let best = localStorage.getItem('cyberflap_best') || 0;
-            if(score > best) {
-                best = score;
-                localStorage.setItem('cyberflap_best', best);
-            }
-            document.getElementById('bestScore').innerText = best;
         }
     
-        window.addEventListener('keydown', e => { if(e.code === 'Space') bird.flap(); });
-        window.addEventListener('touchstart', e => { bird.flap(); e.preventDefault(); }, {passive: false});
+        // LISTENER UPDATED TO HANDLE STARTING
+        window.addEventListener('keydown', e => { 
+            if(e.code === 'Space') {
+                e.preventDefault();
+                initTrigger();
+            }
+        });
+    
+        window.addEventListener('touchstart', e => { 
+            e.preventDefault();
+            initTrigger();
+        }, {passive: false});
+    
+        // Start loop immediately to show "waiting" state
+        loop();
     </script>
 </body>
 </html>
