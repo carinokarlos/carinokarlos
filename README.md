@@ -51,7 +51,7 @@
 *A hidden endless runner project. Can you beat the high score?*
 
 <div align="center">
-  <a href="https://carinokarlos.github.io/game.html">
+  <a href="https://carinokarlos.github.io/carinokarlos/">
     <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZyeWFicnV3bHhzbm56bm56bm56bm56bm56bm56bm56bm56bm56Jm09Zw/3oKIPnAiaMCws8nOsE/giphy.gif" width="400" alt="Cyber Flap Gameplay">
   </a>
   <br><br>
