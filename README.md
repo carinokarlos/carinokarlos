@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/carinokarlos/dev-utils">
-  <img src="https://capsule-render.vercel.app/api?type=soft&color=0f172a&height=120&section=header&text=SYSTEM%20UPGRADE:%20DEV_CORE&fontSize=25&fontColor=38BDF8&desc=Secure%20Password%20Gen%20%7C%20JSON%20Tools%20%7C%20Unit%20Converter&descSize=12&descAlign=50&stroke=38BDF8&strokeWidth=1" alt="Dev Core Blue">
+  <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=22c55e&center=true&vCenter=true&width=600&lines=%3E+INITIALIZING+DEV_CORE_MODULE...;%3E+LOADING+JSON_TOOLS...;%3E+ENCRYPTION_ENGINE:+ACTIVE;%3E+SYSTEM_UPGRADE+COMPLETE." alt="Dev Core Typewriter" />
 </a>
 
 ### Carlos Miguel Cariño
