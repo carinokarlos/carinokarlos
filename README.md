@@ -6,7 +6,7 @@
   <img src="https://readme-typing-svg.herokuapp.com/?font=Source+Code+Pro&size=24&color=38BDF8&center=true&vCenter=true&width=600&lines=%3E+INITIALIZING+DEV_CORE_MODULE...;%3E+BSIT_SPECIALIST:+MOBILE_INTERNET_TECH;%3E+UPLINK_STABLE:+NU_FAIRVIEW;%3E+SYSTEM_UPGRADE+COMPLETE." alt="Status Typewriter" />
 </a>
 
-### *Engineering robust systems with minimalist design principles.*
+### *Developing robust systems with minimalist design principles.*
 **BSIT Specialization in Mobile & Internet Technologies** *National University — Fairview*
 
 <br>
